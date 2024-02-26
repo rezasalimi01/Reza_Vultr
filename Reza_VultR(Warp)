@@ -1,0 +1,423 @@
+{
+  "log": {
+    "level": "warn",
+    "output": "box.log",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-remote",
+        "address": "https://dnslow.me/dns-query",
+        "address_resolver": "dns-direct"
+      },
+      {
+        "tag": "dns-trick-direct",
+        "address": "https://sky.rethinkdns.com/",
+        "detour": "direct-fragment"
+      },
+      {
+        "tag": "dns-direct",
+        "address": "https://dnslow.me/dns-query",
+        "address_resolver": "dns-local",
+        "detour": "direct"
+      },
+      {
+        "tag": "dns-local",
+        "address": "local",
+        "detour": "direct"
+      },
+      {
+        "tag": "dns-block",
+        "address": "rcode://success"
+      }
+    ],
+    "rules": [
+      {
+        "domain": [
+          "dnslow.me",
+          "hys9.freelines.net",
+          "hys9.freelines.net",
+          "hys7.freelines.net",
+          "hys7.freelines.net",
+          "hys8.freelines.net",
+          "hys8.freelines.net"
+        ],
+        "server": "dns-direct"
+      },
+      {
+        "domain_suffix": ".ir",
+        "geosite": "ir",
+        "server": "dns-direct"
+      },
+      {
+        "domain": "cp.cloudflare.com",
+        "server": "dns-remote",
+        "rewrite_ttl": 3000
+      }
+    ],
+    "final": "dns-remote",
+    "static_ips": {
+      "sky.rethinkdns.com": [
+        "188.114.97.3",
+        "188.114.96.3",
+        "2a06:98c1:3121::3",
+        "2a06:98c1:3120::3",
+        "104.18.202.232",
+        "104.18.203.232",
+        "172.64.173.4",
+        "172.64.172.4",
+        "2606:4700:e4::ac40:ad04",
+        "2606:4700:e4::ac40:ac04"
+      ]
+    },
+    "independent_cache": true
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "mtu": 9000,
+      "inet4_address": "172.19.0.1/28",
+      "inet6_address": "fdfe:dcba:9876::1/126",
+      "auto_route": true,
+      "strict_route": true,
+      "endpoint_independent_nat": true,
+      "sniff": true,
+      "sniff_override_destination": true,
+      "domain_strategy": "prefer_ipv4"
+    },
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 2334,
+      "sniff": true,
+      "sniff_override_destination": true,
+      "domain_strategy": "prefer_ipv4"
+    },
+    {
+      "type": "direct",
+      "tag": "dns-in",
+      "listen": "127.0.0.1",
+      "listen_port": 6450,
+      "override_address": "1.1.1.1",
+      "override_port": 53
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "select",
+      "outbounds": [
+        "auto",
+        "WARP § 0",
+        "irancpi_warp\u0026hys1 § 1",
+        "WARP § 2",
+        "irancpi_warp\u0026hys2 § 3",
+        "WARP § 4",
+        "irancpi_warp\u0026hys3 § 5",
+        "WARP § 6",
+        "irancpi_warp\u0026hys4 § 7",
+        "WARP § 8",
+        "irancpi_warp\u0026hys5 § 9",
+        "WARP § 10",
+        "irancpi_warp\u0026hys6 § 11"
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "urltest",
+      "tag": "auto",
+      "outbounds": [
+        "WARP § 0",
+        "irancpi_warp\u0026hys1 § 1",
+        "WARP § 2",
+        "irancpi_warp\u0026hys2 § 3",
+        "WARP § 4",
+        "irancpi_warp\u0026hys3 § 5",
+        "WARP § 6",
+        "irancpi_warp\u0026hys4 § 7",
+        "WARP § 8",
+        "irancpi_warp\u0026hys5 § 9",
+        "WARP § 10",
+        "irancpi_warp\u0026hys6 § 11"
+      ],
+      "url": "http://cp.cloudflare.com/",
+      "interval": "10m0s"
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 0",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:8dc0:c452:85a4:ea53:731e/128"
+      ],
+      "private_key": "4BQHrzGMI5kTl7gqeuzgpFr5KZwjYJrSXbp4PjUZoHk=",
+      "server": "188.114.97.120",
+      "server_port": 1843,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys1 § 1",
+      "detour": "WARP § 0",
+      "server": "hys9.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "sTeki1$re5!8swohopro"
+      },
+      "password": "sTeki1$re5!8swohopro",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 2",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:8e87:29bd:8ae9:e0d5:1f69/128"
+      ],
+      "private_key": "eC+SxuureBb2Db336hbg5nxdCw+PbhnLnCYpYhz6/08=",
+      "server": "162.159.192.181",
+      "server_port": 3138,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys2 § 3",
+      "detour": "WARP § 2",
+      "server": "hys9.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "sTeki1$re5!8swohopro"
+      },
+      "password": "sTeki1$re5!8swohopro",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 4",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:8f39:3d40:2dc8:c3ef:898/128"
+      ],
+      "private_key": "YKrpbT/UkcZwJxJzLoi5u3RotzpiAFvSgfJswpm5n3U=",
+      "server": "188.114.97.120",
+      "server_port": 1843,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys3 § 5",
+      "detour": "WARP § 4",
+      "server": "hys7.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "9ijufI4LW_ehlst!Pho-"
+      },
+      "password": "9ijufI4LW_ehlst!Pho-",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 6",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:8596:1402:f0ad:2e11:9e02/128"
+      ],
+      "private_key": "6DgpaqXvm6ur8IxCKJ1ea/8Q0MN5guuLuI5uol6jpXw=",
+      "server": "162.159.192.181",
+      "server_port": 3138,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys4 § 7",
+      "detour": "WARP § 6",
+      "server": "hys7.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "9ijufI4LW_ehlst!Pho-"
+      },
+      "password": "9ijufI4LW_ehlst!Pho-",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 8",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:8a3d:e431:fc29:d2af:3453/128"
+      ],
+      "private_key": "KBnDxDcrEbyKHS5ox5/KP6yN3UZfig2fL+tHPe7Wt1w=",
+      "server": "188.114.97.120",
+      "server_port": 1843,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys5 § 9",
+      "detour": "WARP § 8",
+      "server": "hys8.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "fokaS4id3bretay-7rit"
+      },
+      "password": "fokaS4id3bretay-7rit",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "wireguard",
+      "tag": "WARP § 10",
+      "local_address": [
+        "172.16.0.2/24",
+        "2606:4700:110:81ea:ec8d:9cce:b380:de8e/128"
+      ],
+      "private_key": "GM9Q4HWY/0zkkPt+0mMcrn4/f6HVboOs2i0U5vfm2H8=",
+      "server": "162.159.192.181",
+      "server_port": 3138,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "reserved": "AAAA",
+      "mtu": 1280,
+      "fake_packets": "1-5",
+      "fake_packets_size": "40-100",
+      "fake_packets_delay": "20-250"
+    },
+    {
+      "type": "hysteria2",
+      "tag": "irancpi_warp\u0026hys6 § 11",
+      "detour": "WARP § 10",
+      "server": "hys8.freelines.net",
+      "server_port": 443,
+      "obfs": {
+        "type": "salamander",
+        "password": "fokaS4id3bretay-7rit"
+      },
+      "password": "fokaS4id3bretay-7rit",
+      "tls": {
+        "enabled": true,
+        "server_name": "google.com",
+        "insecure": true
+      }
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "direct",
+      "tag": "direct-fragment",
+      "tls_fragment": {
+        "enabled": true,
+        "size": "10-20",
+        "sleep": "10-20"
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "bypass"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "geoip": {
+      "path": "geo-assets/soffchen-sing-geoip-geoip.db"
+    },
+    "geosite": {
+      "path": "geo-assets/sagernet-sing-geosite-geosite.db"
+    },
+    "rules": [
+      {
+        "inbound": "dns-in",
+        "outbound": "dns-out"
+      },
+      {
+        "port": 53,
+        "outbound": "dns-out"
+      },
+      {
+        "clash_mode": "Direct",
+        "outbound": "direct"
+      },
+      {
+        "clash_mode": "Global",
+        "outbound": "select"
+      },
+      {
+        "domain_suffix": ".ir",
+        "geosite": "ir",
+        "geoip": "ir",
+        "outbound": "bypass"
+      }
+    ],
+    "final": "select",
+    "auto_detect_interface": true,
+    "override_android_vpn": true
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "clash.db"
+    },
+    "clash_api": {
+      "external_controller": "127.0.0.1:6756"
+    }
+  }
+}
